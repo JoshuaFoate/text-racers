@@ -41,7 +41,7 @@ export function stepRound(state: RoundState, input: RoundInput): RoundState {
   let status: RoundStatus = "in-progress";
   if (cursorIndex >= state.passage.length) {
     status = "won";
-  } else if (eraseIndex >= cursorIndex) {
+  } else if (eraseIndex > 0 && eraseIndex >= cursorIndex) {
     status = "lost";
   }
 
@@ -53,4 +53,12 @@ export function stepRound(state: RoundState, input: RoundInput): RoundState {
     elapsedMs,
     status,
   };
+}
+
+export function resolveRaceStatus(you: RoundState, opponent: RoundState): RoundStatus {
+  if (you.status === "won") return "won";
+  if (opponent.status === "won") return "lost";
+  if (you.status === "lost") return "lost";
+  if (opponent.status === "lost") return "won";
+  return "in-progress";
 }

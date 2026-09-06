@@ -1,53 +1,34 @@
 "use client";
 
-import { characterStates, type CharState } from "game-core";
-import { useEffect, useRef, useState } from "react";
+import { type BotDifficulty } from "game-core";
+import { useState } from "react";
+import { Race } from "./Race";
 
 const PASSAGE = "the quick brown fox jumps over the lazy dog";
 
-const STATE_CLASS: Record<CharState, string> = {
-  untyped: "text-zinc-400 dark:text-zinc-600",
-  correct: "text-foreground",
-  error: "text-red-500",
-};
+const DIFFICULTIES: BotDifficulty[] = ["easy", "medium", "hard", "expert"];
 
 export function TypingRace() {
-  const [typed, setTyped] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const states = characterStates(PASSAGE, typed);
+  const [difficulty, setDifficulty] = useState<BotDifficulty>("medium");
 
   return (
-    <div
-      className="flex flex-1 flex-col items-center justify-center gap-6 px-6"
-      onClick={() => inputRef.current?.focus()}
-    >
-      <p className="max-w-2xl font-mono text-2xl leading-relaxed tracking-wide">
-        {PASSAGE.split("").map((char, i) => (
-          <span
-            key={i}
-            className={`${STATE_CLASS[states[i]]} ${
-              i === typed.length ? "border-l-2 border-teal-500" : ""
-            }`}
-          >
-            {char}
-          </span>
-        ))}
-      </p>
-      <input
-        ref={inputRef}
-        value={typed}
-        onChange={(e) => setTyped(e.target.value)}
-        className="sr-only"
-        autoComplete="off"
-        autoCapitalize="off"
-        autoCorrect="off"
-        spellCheck={false}
-      />
+    <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
+      <div className="flex items-center gap-3 text-sm text-zinc-500">
+        <label htmlFor="difficulty">Difficulty</label>
+        <select
+          id="difficulty"
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value as BotDifficulty)}
+          className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-foreground"
+        >
+          {DIFFICULTIES.map((d) => (
+            <option key={d} value={d}>
+              {d}
+            </option>
+          ))}
+        </select>
+      </div>
+      <Race key={difficulty} passage={PASSAGE} difficulty={difficulty} />
     </div>
   );
 }

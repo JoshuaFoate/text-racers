@@ -5,6 +5,7 @@ export { eraseRatePerSecond, hasGraceElapsed, tickEraseIndex } from "./erase.js"
 export {
   createRoundState,
   stepRound,
+  resolveRaceStatus,
   type RoundState,
   type RoundStatus,
   type RoundInput,
