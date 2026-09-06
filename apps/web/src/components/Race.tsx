@@ -54,19 +54,25 @@ function PassageLine({
   );
 }
 
-export function Race({ passage, difficulty }: { passage: string; difficulty: BotDifficulty }) {
+export function Race({
+  passage,
+  difficulty,
+  onRoundEnd,
+}: {
+  passage: string;
+  difficulty: BotDifficulty;
+  onRoundEnd: (status: "won" | "lost") => void;
+}) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [countdown, setCountdown] = useState(COUNTDOWN_START);
   const [typed, setTyped] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const {
-    youRound,
-    botRound,
-    bot,
-    status,
-    setTyped: setRaceTyped,
-    restart,
-  } = useRace(passage, difficulty, phase === "racing");
+  const reportedRef = useRef(false);
+  const { youRound, botRound, bot, status, setTyped: setRaceTyped } = useRace(
+    passage,
+    difficulty,
+    phase === "racing"
+  );
 
   useEffect(() => {
     if (phase === "racing") inputRef.current?.focus();
@@ -86,6 +92,13 @@ export function Race({ passage, difficulty }: { passage: string; difficulty: Bot
     return () => clearTimeout(timer);
   }, [phase, countdown]);
 
+  useEffect(() => {
+    if (status !== "in-progress" && !reportedRef.current) {
+      reportedRef.current = true;
+      onRoundEnd(status);
+    }
+  }, [status, onRoundEnd]);
+
   function handleStart() {
     setCountdown(COUNTDOWN_START);
     setPhase("countdown");
@@ -95,12 +108,6 @@ export function Race({ passage, difficulty }: { passage: string; difficulty: Bot
     if (status !== "in-progress") return;
     setTyped(value);
     setRaceTyped(value);
-  }
-
-  function handleTryAgain() {
-    restart();
-    setTyped("");
-    setPhase("idle");
   }
 
   return (
@@ -130,17 +137,9 @@ export function Race({ passage, difficulty }: { passage: string; difficulty: Bot
       {phase === "countdown" && <p className="text-4xl text-teal-500">{countdown}</p>}
 
       {phase === "racing" && status !== "in-progress" && (
-        <div className="flex flex-col items-center gap-3">
-          <p className={status === "won" ? "text-teal-500" : "text-red-500"}>
-            {outcomeMessage(youRound, botRound)}
-          </p>
-          <button
-            onClick={handleTryAgain}
-            className="rounded border border-zinc-700 px-3 py-1 text-sm text-foreground"
-          >
-            Try again
-          </button>
-        </div>
+        <p className={status === "won" ? "text-teal-500" : "text-red-500"}>
+          {outcomeMessage(youRound, botRound)}
+        </p>
       )}
 
       <input

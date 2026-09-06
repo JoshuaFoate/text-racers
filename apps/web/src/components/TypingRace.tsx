@@ -2,14 +2,37 @@
 
 import { type BotDifficulty } from "game-core";
 import { useState } from "react";
-import { Race } from "./Race";
+import { Match, type BestOf } from "./Match";
 
 const PASSAGE = "the quick brown fox jumps over the lazy dog";
 
 const DIFFICULTIES: BotDifficulty[] = ["easy", "medium", "hard", "expert"];
+const BEST_OF_OPTIONS: BestOf[] = [3, 5];
+
+type AppPhase = "setup" | "match";
 
 export function TypingRace() {
+  const [phase, setPhase] = useState<AppPhase>("setup");
   const [difficulty, setDifficulty] = useState<BotDifficulty>("medium");
+  const [bestOf, setBestOf] = useState<BestOf>(3);
+  const [matchKey, setMatchKey] = useState(0);
+
+  if (phase === "match") {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
+        <Match
+          key={matchKey}
+          passage={PASSAGE}
+          difficulty={difficulty}
+          bestOf={bestOf}
+          onExit={() => {
+            setMatchKey((k) => k + 1);
+            setPhase("setup");
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
@@ -28,7 +51,29 @@ export function TypingRace() {
           ))}
         </select>
       </div>
-      <Race key={difficulty} passage={PASSAGE} difficulty={difficulty} />
+
+      <div className="flex items-center gap-3 text-sm text-zinc-500">
+        <label htmlFor="best-of">Best of</label>
+        <select
+          id="best-of"
+          value={bestOf}
+          onChange={(e) => setBestOf(Number(e.target.value) as BestOf)}
+          className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-foreground"
+        >
+          {BEST_OF_OPTIONS.map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <button
+        onClick={() => setPhase("match")}
+        className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
+      >
+        Start match
+      </button>
     </div>
   );
 }

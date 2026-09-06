@@ -37,13 +37,6 @@ export function useRace(passage: string, difficulty: BotDifficulty, started: boo
   const lastTsRef = useRef<number | null>(null);
   const samplesRef = useRef<ProgressSample[]>([]);
 
-  const restart = useCallback(() => {
-    setState(createRaceState(passage, difficulty));
-    typedRef.current = "";
-    lastTsRef.current = null;
-    samplesRef.current = [];
-  }, [passage, difficulty]);
-
   useEffect(() => {
     if (!started) return;
 
@@ -89,5 +82,5 @@ export function useRace(passage: string, difficulty: BotDifficulty, started: boo
 
   const status = resolveRaceStatus(state.you, state.botRound);
 
-  return { youRound: state.you, botRound: state.botRound, bot: state.bot, status, setTyped, restart };
+  return { youRound: state.you, botRound: state.botRound, bot: state.bot, status, setTyped };
 }
