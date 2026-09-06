@@ -1,10 +1,17 @@
 "use client";
 
+import { generatePassage, type PassageLength } from "content";
 import type { BotDifficulty } from "game-core";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Race } from "./Race";
 
 export type BestOf = 3 | 5;
+
+function lengthForRound(round: number): PassageLength {
+  if (round === 1) return "short";
+  if (round === 2) return "medium";
+  return "long";
+}
 
 function Scoreboard({
   round,
@@ -29,12 +36,10 @@ function Scoreboard({
 }
 
 export function Match({
-  passage,
   difficulty,
   bestOf,
   onExit,
 }: {
-  passage: string;
   difficulty: BotDifficulty;
   bestOf: BestOf;
   onExit: () => void;
@@ -42,6 +47,7 @@ export function Match({
   const [wins, setWins] = useState({ you: 0, bot: 0 });
   const [round, setRound] = useState(1);
   const [roundOver, setRoundOver] = useState(false);
+  const passage = useMemo(() => generatePassage(lengthForRound(round)), [round]);
 
   const winsNeeded = Math.ceil(bestOf / 2);
   const matchWinner: "you" | "bot" | null =

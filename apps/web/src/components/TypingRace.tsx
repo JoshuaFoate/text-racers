@@ -1,10 +1,8 @@
 "use client";
 
-import { type BotDifficulty } from "game-core";
+import { BOT_WPM, type BotDifficulty } from "game-core";
 import { useState } from "react";
 import { Match, type BestOf } from "./Match";
-
-const PASSAGE = "the quick brown fox jumps over the lazy dog";
 
 const DIFFICULTIES: BotDifficulty[] = ["easy", "medium", "hard", "expert"];
 const BEST_OF_OPTIONS: BestOf[] = [3, 5];
@@ -22,7 +20,6 @@ export function TypingRace() {
       <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
         <Match
           key={matchKey}
-          passage={PASSAGE}
           difficulty={difficulty}
           bestOf={bestOf}
           onExit={() => {
@@ -46,7 +43,7 @@ export function TypingRace() {
         >
           {DIFFICULTIES.map((d) => (
             <option key={d} value={d}>
-              {d}
+              {d} ({BOT_WPM[d]} WPM)
             </option>
           ))}
         </select>

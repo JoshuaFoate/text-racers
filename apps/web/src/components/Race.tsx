@@ -1,6 +1,6 @@
 "use client";
 
-import { characterStates, type BotDifficulty, type CharState, type RoundState } from "game-core";
+import { BOT_WPM, characterStates, type BotDifficulty, type CharState, type RoundState } from "game-core";
 import { useEffect, useRef, useState } from "react";
 import { useRace } from "@/hooks/useRace";
 
@@ -121,7 +121,9 @@ export function Race({
       </div>
 
       <div className="flex flex-col items-center gap-1">
-        <span className="text-xs uppercase tracking-widest text-zinc-500">Bot ({difficulty})</span>
+        <span className="text-xs uppercase tracking-widest text-zinc-500">
+          Bot ({difficulty}, {BOT_WPM[difficulty]} WPM)
+        </span>
         <PassageLine passage={passage} typed={bot.typed} erasedCount={Math.floor(botRound.eraseIndex)} />
       </div>
 
