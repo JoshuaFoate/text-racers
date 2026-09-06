@@ -9,3 +9,10 @@ export {
   type RoundStatus,
   type RoundInput,
 } from "./round.js";
+export {
+  createBotState,
+  stepBot,
+  BOT_WPM,
+  type BotState,
+  type BotDifficulty,
+} from "./bot.js";
