@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BOT_WPM, createBotState, stepBot } from "./bot.js";
+import { BOT_WPM, createBotState, stepBot } from "../src/bot.js";
 
 describe("BOT_WPM", () => {
   it("matches the four fixed difficulty speeds", () => {

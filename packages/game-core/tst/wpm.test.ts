@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeLiveWpm, type ProgressSample } from "./wpm.js";
+import { computeLiveWpm, type ProgressSample } from "../src/wpm.js";
 
 describe("computeLiveWpm", () => {
   it("returns 0 for no samples", () => {

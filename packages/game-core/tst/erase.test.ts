@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { eraseRatePerSecond, hasGraceElapsed, tickEraseIndex } from "./erase.js";
+import { eraseRatePerSecond, hasGraceElapsed, tickEraseIndex } from "../src/erase.js";
 
 describe("eraseRatePerSecond", () => {
   it("converts WPM to chars per second", () => {

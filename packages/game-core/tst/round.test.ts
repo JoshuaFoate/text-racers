@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRoundState, stepRound, type RoundState } from "./round.js";
+import { createRoundState, stepRound, type RoundState } from "../src/round.js";
 
 describe("createRoundState", () => {
   it("starts in-progress with everything at zero", () => {

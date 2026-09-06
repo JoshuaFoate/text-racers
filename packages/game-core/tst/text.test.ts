@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { characterStates, confirmedPrefixLength } from "./text.js";
+import { characterStates, confirmedPrefixLength } from "../src/text.js";
 
 describe("confirmedPrefixLength", () => {
   it("returns 0 for empty input", () => {
