@@ -1,0 +1,1 @@
+console.log("type-stacker server placeholder — Socket.IO wiring lands in M4");
