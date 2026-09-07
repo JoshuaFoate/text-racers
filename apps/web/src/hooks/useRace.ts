@@ -5,6 +5,7 @@ import {
   computeLiveWpm,
   createBotState,
   createRoundState,
+  DEFAULT_WPM_WINDOW_MS,
   resolveRaceStatus,
   stepBot,
   stepRound,
@@ -14,8 +15,6 @@ import {
   type RoundState,
 } from "game-core";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-const WPM_WINDOW_MS = 5000;
 
 type RaceState = {
   you: RoundState;
@@ -57,7 +56,7 @@ export function useRace(passage: string, difficulty: BotDifficulty, started: boo
         });
 
         samplesRef.current.push({ cursorIndex: you.cursorIndex, t: ts });
-        const humanWpm = computeLiveWpm(samplesRef.current, ts, WPM_WINDOW_MS);
+        const humanWpm = computeLiveWpm(samplesRef.current, ts, DEFAULT_WPM_WINDOW_MS);
 
         const bot = stepBot(prev.bot, passage, difficulty, dtMs);
         const botRound = stepRound(prev.botRound, {

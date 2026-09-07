@@ -1,9 +1,11 @@
 export type ProgressSample = { cursorIndex: number; t: number };
 
+export const DEFAULT_WPM_WINDOW_MS = 5000;
+
 export function computeLiveWpm(
   samples: ProgressSample[],
   now: number,
-  windowMs = 5000
+  windowMs = DEFAULT_WPM_WINDOW_MS
 ): number {
   if (samples.length === 0) return 0;
 
