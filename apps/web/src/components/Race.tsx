@@ -1,16 +1,9 @@
 "use client";
 
-import { BOT_WPM, characterStates, type BotDifficulty, type CharState, type RoundState } from "game-core";
+import { BOT_WPM, type BotDifficulty, type RoundState } from "game-core";
 import { useEffect, useRef, useState } from "react";
 import { useRace } from "@/hooks/useRace";
-
-const STATE_CLASS: Record<CharState, string> = {
-  untyped: "text-zinc-400 dark:text-zinc-600",
-  correct: "text-foreground",
-  error: "text-red-500",
-};
-
-const ERASED_CLASS = "text-zinc-600 dark:text-zinc-700 line-through decoration-red-500/70";
+import { PassageLine } from "./PassageLine";
 
 const COUNTDOWN_START = 3;
 
@@ -22,36 +15,6 @@ function outcomeMessage(you: RoundState, botRound: RoundState): string {
   if (you.status === "lost") return "Erased! You lost.";
   if (botRound.status === "lost") return "Bot got erased — you won!";
   return "";
-}
-
-function PassageLine({
-  passage,
-  typed,
-  erasedCount = 0,
-}: {
-  passage: string;
-  typed: string;
-  erasedCount?: number;
-}) {
-  const states = characterStates(passage, typed);
-  return (
-    <p className="max-w-2xl font-mono text-2xl leading-relaxed tracking-wide">
-      {passage.split("").map((char, i) => {
-        const state = states[i];
-        const displayChar = state === "error" && char === " " && typed[i] !== " " ? typed[i] : char;
-        return (
-          <span
-            key={i}
-            className={`${i < erasedCount ? ERASED_CLASS : STATE_CLASS[state]} ${
-              i === typed.length ? "border-l-2 border-teal-500" : ""
-            }`}
-          >
-            {displayChar}
-          </span>
-        );
-      })}
-    </p>
-  );
 }
 
 export function Race({
