@@ -14,20 +14,17 @@ function lengthForRound(round: number): PassageLength {
 }
 
 function Scoreboard({
-  round,
   bestOf,
   you,
   bot,
 }: {
-  round: number;
   bestOf: BestOf;
   you: number;
   bot: number;
 }) {
   return (
-    <div className="flex items-center gap-4 text-sm text-zinc-500">
-      <span>Best of {bestOf}</span>
-      <span>Round {round}</span>
+    <div className="fixed left-6 top-1/2 flex -translate-y-1/2 flex-col items-start gap-2 text-xl">
+      <span className="text-foreground">Best of {bestOf}</span>
       <span className="text-foreground">
         You {you} — {bot} Bot
       </span>
@@ -65,7 +62,9 @@ export function Match({
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <Scoreboard round={round} bestOf={bestOf} you={wins.you} bot={wins.bot} />
+      <Scoreboard bestOf={bestOf} you={wins.you} bot={wins.bot} />
+
+      <p className="text-xl text-teal-500">Round {round}</p>
 
       <Race key={round} passage={passage} difficulty={difficulty} onRoundEnd={handleRoundEnd} />
 

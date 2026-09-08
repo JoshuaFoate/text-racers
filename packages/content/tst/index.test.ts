@@ -62,6 +62,12 @@ describe("punctuateWords", () => {
     expect(punctuateWords(words, rng)).toBe("A b c d e f g h. I j.");
   });
 
+  it("always capitalizes the pronoun i, even mid-sentence", () => {
+    const words = ["the", "cat", "and", "i", "ran"];
+    const rng = sequenceRng([0.99]); // never triggers a comma or sentence break
+    expect(punctuateWords(words, rng)).toBe("The cat and I ran.");
+  });
+
   it("never capitalizes anything beyond each sentence's first letter", () => {
     const words = Array.from({ length: 40 }, (_, i) => WORD_LIST[i % WORD_LIST.length]);
     const result = punctuateWords(words, mulberry32(7));

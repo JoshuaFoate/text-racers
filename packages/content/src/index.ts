@@ -40,7 +40,7 @@ export function punctuateWords(words: string[], rng: () => number = Math.random)
   let capitalizeNext = true;
 
   for (let i = 0; i < words.length; i++) {
-    let word = words[i];
+    let word = words[i] === "i" ? "I" : words[i];
     if (capitalizeNext) {
       word = word.charAt(0).toUpperCase() + word.slice(1);
       capitalizeNext = false;

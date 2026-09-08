@@ -116,26 +116,30 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="flex items-center gap-4 text-sm text-zinc-500">
-        <span>Best of {bestOf}</span>
-        <span>Round {round}</span>
+      <div className="fixed left-6 top-1/2 flex -translate-y-1/2 flex-col items-start gap-2 text-xl">
+        <span className="text-foreground">Best of {bestOf}</span>
         <span className="text-foreground">
           You {wins.you} — {wins.opponent} Opponent
         </span>
       </div>
 
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-xs uppercase tracking-widest text-zinc-500">You</span>
-        <PassageLine passage={passage} typed={typed} erasedCount={Math.floor(you.eraseIndex)} />
-      </div>
+      <p className="text-xl text-teal-500">Round {round}</p>
 
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-xs uppercase tracking-widest text-zinc-500">Opponent</span>
-        <PassageLine
-          passage={passage}
-          typed={passage.slice(0, opponent.cursorIndex)}
-          erasedCount={Math.floor(opponent.eraseIndex)}
-        />
+      <div className="flex flex-col items-center gap-16">
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xl uppercase tracking-widest text-green-500">You</span>
+          <PassageLine passage={passage} typed={typed} erasedCount={Math.floor(you.eraseIndex)} />
+        </div>
+
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xl uppercase tracking-widest text-red-500">Opponent</span>
+          <PassageLine
+            passage={passage}
+            typed={passage.slice(0, opponent.cursorIndex)}
+            erasedCount={Math.floor(opponent.eraseIndex)}
+            size="sm"
+          />
+        </div>
       </div>
 
       {phase === "countdown" && <p className="text-4xl text-teal-500">{countdownLabel}</p>}

@@ -78,16 +78,23 @@ export function Race({
       className="flex flex-col items-center gap-6"
       onClick={() => phase === "racing" && inputRef.current?.focus()}
     >
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-xs uppercase tracking-widest text-zinc-500">You</span>
-        <PassageLine passage={passage} typed={typed} erasedCount={Math.floor(youRound.eraseIndex)} />
-      </div>
+      <div className="flex flex-col items-center gap-16">
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xl uppercase tracking-widest text-green-500">You</span>
+          <PassageLine passage={passage} typed={typed} erasedCount={Math.floor(youRound.eraseIndex)} />
+        </div>
 
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-xs uppercase tracking-widest text-zinc-500">
-          Bot ({difficulty}, {BOT_WPM[difficulty]} WPM)
-        </span>
-        <PassageLine passage={passage} typed={bot.typed} erasedCount={Math.floor(botRound.eraseIndex)} />
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xl uppercase tracking-widest text-red-500">
+            Bot ({difficulty}, {BOT_WPM[difficulty]} WPM)
+          </span>
+          <PassageLine
+            passage={passage}
+            typed={bot.typed}
+            erasedCount={Math.floor(botRound.eraseIndex)}
+            size="sm"
+          />
+        </div>
       </div>
 
       {phase === "idle" && (
