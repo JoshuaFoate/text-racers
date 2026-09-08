@@ -24,9 +24,9 @@ export const WORD_LIST: string[] = [
 export type PassageLength = "short" | "medium" | "long";
 
 export const PASSAGE_WORD_COUNT: Record<PassageLength, number> = {
-  short: 15,
-  medium: 25,
-  long: 40,
+  short: 30,
+  medium: 50,
+  long: 80,
 };
 
 const SENTENCE_MIN_WORDS = 8;

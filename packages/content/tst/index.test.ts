@@ -37,7 +37,7 @@ describe("WORD_LIST", () => {
 
 describe("PASSAGE_WORD_COUNT", () => {
   it("matches the design's length tiers", () => {
-    expect(PASSAGE_WORD_COUNT).toEqual({ short: 15, medium: 25, long: 40 });
+    expect(PASSAGE_WORD_COUNT).toEqual({ short: 30, medium: 50, long: 80 });
   });
 });
 

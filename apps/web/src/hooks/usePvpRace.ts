@@ -6,6 +6,7 @@ import { getSocket } from "@/lib/socket";
 
 const PROGRESS_INTERVAL_MS = 150;
 const SESSION_STORAGE_KEY = "text-racers-session-id";
+const SESSION_CHECK_TIMEOUT_MS = 3000;
 
 export type ClientRound = { cursorIndex: number; eraseIndex: number; status: RoundStatus };
 export type BestOf = 3 | 5;
@@ -40,14 +41,24 @@ export function usePvpSessionCheck(): { checked: boolean; hasActiveMatch: boolea
       return;
     }
 
+    let settled = false;
+    const timeout = setTimeout(() => {
+      settled = true;
+      setChecked(true);
+    }, SESSION_CHECK_TIMEOUT_MS);
+
     getSocket().emit(
       "reconnect-session",
       { sessionId: existingSessionId },
       (res: { ok: boolean; passage?: string }) => {
+        if (settled) return;
+        clearTimeout(timeout);
         setHasActiveMatch(Boolean(res.ok && res.passage));
         setChecked(true);
       }
     );
+
+    return () => clearTimeout(timeout);
   }, []);
 
   return { checked, hasActiveMatch };
