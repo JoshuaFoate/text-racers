@@ -5,12 +5,28 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getSocket } from "@/lib/socket";
 
 const PROGRESS_INTERVAL_MS = 150;
+const SESSION_STORAGE_KEY = "text-racers-session-id";
 
 export type ClientRound = { cursorIndex: number; eraseIndex: number; status: RoundStatus };
+export type BestOf = 3 | 5;
 
-export type PvpPhase = "lobby" | "waiting" | "countdown" | "racing" | "done";
+export type PvpPhase = "lobby" | "waiting" | "countdown" | "racing" | "round-over" | "match-over";
 
 const EMPTY_ROUND: ClientRound = { cursorIndex: 0, eraseIndex: 0, status: "in-progress" };
+
+function getSessionId(): string {
+  let id = sessionStorage.getItem(SESSION_STORAGE_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(SESSION_STORAGE_KEY, id);
+  }
+  return id;
+}
+
+export function hasStoredPvpSession(): boolean {
+  if (typeof window === "undefined") return false;
+  return sessionStorage.getItem(SESSION_STORAGE_KEY) !== null;
+}
 
 export function usePvpRace() {
   const [phase, setPhase] = useState<PvpPhase>("lobby");
@@ -18,36 +34,95 @@ export function usePvpRace() {
   const [error, setError] = useState<string | null>(null);
   const [passage, setPassage] = useState("");
   const [startAt, setStartAt] = useState<number | null>(null);
+  const [round, setRound] = useState(1);
+  const [bestOf, setBestOf] = useState<BestOf>(3);
+  const [wins, setWins] = useState({ you: 0, opponent: 0 });
   const [you, setYou] = useState<ClientRound>(EMPTY_ROUND);
   const [opponent, setOpponent] = useState<ClientRound>(EMPTY_ROUND);
   const [status, setStatus] = useState<RoundStatus>("in-progress");
+  const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const typedRef = useRef("");
+  const sessionIdRef = useRef("");
 
   useEffect(() => {
+    sessionIdRef.current = getSessionId();
     const socket = getSocket();
 
-    function handleMatchStart(payload: { passage: string; startAt: number }) {
+    function handleMatchStart(payload: {
+      passage: string;
+      startAt: number;
+      round: number;
+      bestOf: BestOf;
+      wins: { you: number; opponent: number };
+    }) {
       setPassage(payload.passage);
       setStartAt(payload.startAt);
+      setRound(payload.round);
+      setBestOf(payload.bestOf);
+      setWins(payload.wins);
+      setYou(EMPTY_ROUND);
+      setOpponent(EMPTY_ROUND);
+      setOpponentDisconnected(false);
       setPhase("countdown");
     }
     function handleState(payload: { you: ClientRound; opponent: ClientRound }) {
       setYou(payload.you);
       setOpponent(payload.opponent);
     }
-    function handleRoundOver(payload: { status: RoundStatus }) {
+    function handleRoundOver(payload: {
+      status: RoundStatus;
+      wins: { you: number; opponent: number };
+      matchOver: boolean;
+    }) {
       setStatus(payload.status);
-      setPhase("done");
+      setWins(payload.wins);
+      setPhase(payload.matchOver ? "match-over" : "round-over");
+    }
+    function handleOpponentDisconnected() {
+      setOpponentDisconnected(true);
+    }
+    function handleOpponentReconnected() {
+      setOpponentDisconnected(false);
     }
 
     socket.on("match-start", handleMatchStart);
     socket.on("state", handleState);
     socket.on("round-over", handleRoundOver);
+    socket.on("opponent-disconnected", handleOpponentDisconnected);
+    socket.on("opponent-reconnected", handleOpponentReconnected);
+
+    // Always attempt to resume a previous session first - this is what makes
+    // a page refresh (not just a brief network blip) recoverable, not only
+    // an in-page reconnect.
+    socket.emit(
+      "reconnect-session",
+      { sessionId: sessionIdRef.current },
+      (res: {
+        ok: boolean;
+        passage?: string;
+        round?: number;
+        bestOf?: BestOf;
+        wins?: { you: number; opponent: number };
+        you?: ClientRound;
+        opponent?: ClientRound;
+      }) => {
+        if (!res.ok || !res.passage) return;
+        setPassage(res.passage);
+        setRound(res.round ?? 1);
+        setBestOf(res.bestOf ?? 3);
+        setWins(res.wins ?? { you: 0, opponent: 0 });
+        setYou(res.you ?? EMPTY_ROUND);
+        setOpponent(res.opponent ?? EMPTY_ROUND);
+        setPhase("racing");
+      }
+    );
 
     return () => {
       socket.off("match-start", handleMatchStart);
       socket.off("state", handleState);
       socket.off("round-over", handleRoundOver);
+      socket.off("opponent-disconnected", handleOpponentDisconnected);
+      socket.off("opponent-reconnected", handleOpponentReconnected);
     };
   }, []);
 
@@ -68,19 +143,23 @@ export function usePvpRace() {
     return () => clearInterval(interval);
   }, [phase, passage]);
 
-  const createRoom = useCallback(() => {
+  const createRoom = useCallback((selectedBestOf: BestOf) => {
     setError(null);
-    getSocket().emit("create-room", (res: { roomCode: string }) => {
-      setRoomCode(res.roomCode);
-      setPhase("waiting");
-    });
+    getSocket().emit(
+      "create-room",
+      { sessionId: sessionIdRef.current, bestOf: selectedBestOf },
+      (res: { roomCode: string }) => {
+        setRoomCode(res.roomCode);
+        setPhase("waiting");
+      }
+    );
   }, []);
 
   const joinRoom = useCallback((code: string) => {
     setError(null);
     getSocket().emit(
       "join-room",
-      { roomCode: code },
+      { sessionId: sessionIdRef.current, roomCode: code },
       (res: { ok: boolean; error?: string }) => {
         if (!res.ok) {
           setError(res.error ?? "Could not join room");
@@ -102,9 +181,13 @@ export function usePvpRace() {
     error,
     passage,
     startAt,
+    round,
+    bestOf,
+    wins,
     you,
     opponent,
     status,
+    opponentDisconnected,
     setTyped,
     createRoom,
     joinRoom,

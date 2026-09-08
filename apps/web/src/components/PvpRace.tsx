@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePvpRace } from "@/hooks/usePvpRace";
+import { type BestOf, usePvpRace } from "@/hooks/usePvpRace";
 import { PassageLine } from "./PassageLine";
+
+const BEST_OF_OPTIONS: BestOf[] = [3, 5];
 
 export function PvpRace({ onExit }: { onExit: () => void }) {
   const {
@@ -11,17 +13,28 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
     error,
     passage,
     startAt,
+    round,
+    bestOf,
+    wins,
     you,
     opponent,
     status,
+    opponentDisconnected,
     setTyped,
     createRoom,
     joinRoom,
   } = usePvpRace();
   const [typed, setLocalTyped] = useState("");
   const [codeInput, setCodeInput] = useState("");
+  const [selectedBestOf, setSelectedBestOf] = useState<BestOf>(3);
   const [countdownLabel, setCountdownLabel] = useState(0);
+  const [passageForTyped, setPassageForTyped] = useState(passage);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  if (passage !== passageForTyped) {
+    setPassageForTyped(passage);
+    setLocalTyped("");
+  }
 
   useEffect(() => {
     if (phase === "racing") inputRef.current?.focus();
@@ -46,12 +59,25 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
   if (phase === "lobby") {
     return (
       <div className="flex flex-col items-center gap-6">
-        <button
-          onClick={createRoom}
-          className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
-        >
-          Create room
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => createRoom(selectedBestOf)}
+            className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
+          >
+            Create room
+          </button>
+          <select
+            value={selectedBestOf}
+            onChange={(e) => setSelectedBestOf(Number(e.target.value) as BestOf)}
+            className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-sm text-foreground"
+          >
+            {BEST_OF_OPTIONS.map((n) => (
+              <option key={n} value={n}>
+                Best of {n}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="flex items-center gap-2 text-sm">
           <input
@@ -90,6 +116,14 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
 
   return (
     <div className="flex flex-col items-center gap-6">
+      <div className="flex items-center gap-4 text-sm text-zinc-500">
+        <span>Best of {bestOf}</span>
+        <span>Round {round}</span>
+        <span className="text-foreground">
+          You {wins.you} — {wins.opponent} Opponent
+        </span>
+      </div>
+
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs uppercase tracking-widest text-zinc-500">You</span>
         <PassageLine passage={passage} typed={typed} erasedCount={Math.floor(you.eraseIndex)} />
@@ -106,10 +140,20 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
 
       {phase === "countdown" && <p className="text-4xl text-teal-500">{countdownLabel}</p>}
 
-      {phase === "done" && (
+      {opponentDisconnected && (phase === "countdown" || phase === "racing") && (
+        <p className="text-sm text-red-500">Opponent disconnected — waiting for them to reconnect…</p>
+      )}
+
+      {phase === "round-over" && (
+        <p className={status === "won" ? "text-teal-500" : "text-red-500"}>
+          {status === "won" ? "You won that round!" : "You lost that round."}
+        </p>
+      )}
+
+      {phase === "match-over" && (
         <div className="flex flex-col items-center gap-3">
           <p className={status === "won" ? "text-teal-500" : "text-red-500"}>
-            {status === "won" ? "You won!" : "You lost."}
+            {status === "won" ? "You won the match!" : "You lost the match."}
           </p>
           <button
             onClick={onExit}

@@ -1,7 +1,8 @@
 "use client";
 
 import { BOT_WPM, type BotDifficulty } from "game-core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { hasStoredPvpSession } from "@/hooks/usePvpRace";
 import { Match, type BestOf } from "./Match";
 import { PvpRace } from "./PvpRace";
 
@@ -17,6 +18,17 @@ export function TypingRace() {
   const [difficulty, setDifficulty] = useState<BotDifficulty>("medium");
   const [bestOf, setBestOf] = useState<BestOf>(3);
   const [matchKey, setMatchKey] = useState(0);
+
+  useEffect(() => {
+    // sessionStorage only exists client-side, so resuming an in-progress PvP
+    // session after a page refresh can't be decided during render without
+    // causing a hydration mismatch against the server-rendered setup screen.
+    if (hasStoredPvpSession()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMode("pvp");
+      setPhase("match");
+    }
+  }, []);
 
   function handleExit() {
     setMatchKey((k) => k + 1);
