@@ -20,9 +20,11 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
     opponent,
     status,
     opponentDisconnected,
+    opponentLeft,
     setTyped,
     createRoom,
     joinRoom,
+    leaveMatch,
   } = usePvpRace();
   const [typed, setLocalTyped] = useState("");
   const [codeInput, setCodeInput] = useState("");
@@ -54,6 +56,11 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
     if (phase !== "racing") return;
     setLocalTyped(value);
     setTyped(value);
+  }
+
+  function handleLeaveMatch() {
+    leaveMatch();
+    onExit();
   }
 
   if (phase === "lobby") {
@@ -110,6 +117,23 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
         <p className="text-sm text-zinc-500">Share this code with your opponent</p>
         <p className="text-4xl tracking-widest text-teal-500">{roomCode}</p>
         <p className="text-sm text-zinc-500">Waiting for opponent…</p>
+        <button onClick={handleLeaveMatch} className="text-xs text-zinc-500 underline">
+          Leave match
+        </button>
+      </div>
+    );
+  }
+
+  if (opponentLeft) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <p className="text-sm text-red-500">Your opponent left the match.</p>
+        <button
+          onClick={onExit}
+          className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
+        >
+          Back to menu
+        </button>
       </div>
     );
   }
@@ -166,6 +190,12 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
             Back to menu
           </button>
         </div>
+      )}
+
+      {(phase === "countdown" || phase === "racing" || phase === "round-over") && (
+        <button onClick={handleLeaveMatch} className="text-xs text-zinc-500 underline">
+          Leave match
+        </button>
       )}
 
       <input

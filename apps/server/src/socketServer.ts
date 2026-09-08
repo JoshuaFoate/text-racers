@@ -93,11 +93,18 @@ function opponentOf(room: Room, player: Player): Player | undefined {
 }
 
 function cleanupRoom(room: Room, ctx: ServerContext) {
+  if (room.tickInterval) clearInterval(room.tickInterval);
+  room.tickInterval = null;
   ctx.rooms.delete(room.code);
   for (const player of room.players) {
     if (player.disconnectTimer) clearTimeout(player.disconnectTimer);
     ctx.sessions.delete(player.sessionId);
   }
+}
+
+function leaveRoom(room: Room, player: Player, ctx: ServerContext) {
+  opponentOf(room, player)?.socket?.emit("opponent-left");
+  cleanupRoom(room, ctx);
 }
 
 function startRound(room: Room, ctx: ServerContext) {
@@ -138,6 +145,10 @@ function concludeRound(room: Room, ctx: ServerContext) {
   room.paused = false;
 
   const [a, b] = room.players;
+  if (!a || !b) {
+    cleanupRoom(room, ctx);
+    return;
+  }
   const aStatus = resolveRaceStatus(a.round, b.round);
   const bStatus = resolveRaceStatus(b.round, a.round);
 
@@ -206,6 +217,11 @@ function forfeitRound(room: Room, player: Player, ctx: ServerContext) {
 }
 
 function handleDisconnect(room: Room, player: Player, ctx: ServerContext) {
+  if (room.players.length < 2) {
+    cleanupRoom(room, ctx);
+    return;
+  }
+
   const wasTicking = room.tickInterval !== null;
   if (wasTicking) {
     clearInterval(room.tickInterval!);
@@ -343,6 +359,13 @@ export function attachGameServer(io: Server, options: GameServerOptions = {}): v
       const clamped = Math.max(0, Math.min(payload.cursorIndex, currentRoom.passage.length));
       me.latestCursorIndex = clamped;
       me.samples.push({ cursorIndex: clamped, t: Date.now() });
+    });
+
+    socket.on("leave-match", () => {
+      if (!currentRoom || !me) return;
+      leaveRoom(currentRoom, me, ctx);
+      currentRoom = null;
+      me = null;
     });
 
     socket.on("disconnect", () => {

@@ -252,6 +252,97 @@ describe("socket server", () => {
     }
   });
 
+  it("notifies the opponent and ends the match when a player leaves mid-race", async () => {
+    const url = `http://localhost:${port}`;
+    const clientA = ioClient(url);
+    const clientB = ioClient(url);
+
+    try {
+      await Promise.all([waitFor(clientA, "connect"), waitFor(clientB, "connect")]);
+
+      const matchStartB = waitFor<MatchStart>(clientB, "match-start");
+      const { roomCode } = await new Promise<{ roomCode: string }>((resolve) => {
+        clientA.emit("create-room", { sessionId: "session-leave-a", bestOf: 3 }, resolve);
+      });
+      await new Promise<{ ok: boolean }>((resolve) => {
+        clientB.emit("join-room", { sessionId: "session-leave-b", roomCode }, resolve);
+      });
+      await matchStartB;
+
+      const opponentLeft = waitFor(clientB, "opponent-left");
+      clientA.emit("leave-match");
+      await opponentLeft;
+
+      const resumeA = await new Promise<{ ok: boolean }>((resolve) => {
+        clientA.emit("reconnect-session", { sessionId: "session-leave-a" }, resolve);
+      });
+      const resumeB = await new Promise<{ ok: boolean }>((resolve) => {
+        clientB.emit("reconnect-session", { sessionId: "session-leave-b" }, resolve);
+      });
+      expect(resumeA.ok).toBe(false);
+      expect(resumeB.ok).toBe(false);
+    } finally {
+      clientA.close();
+      clientB.close();
+    }
+  });
+
+  it("lets a player leave a room while still waiting for an opponent", async () => {
+    const url = `http://localhost:${port}`;
+    const client = ioClient(url);
+    const lateJoiner = ioClient(url);
+
+    try {
+      await Promise.all([waitFor(client, "connect"), waitFor(lateJoiner, "connect")]);
+      const { roomCode } = await new Promise<{ roomCode: string }>((resolve) => {
+        client.emit("create-room", { sessionId: "session-solo", bestOf: 3 }, resolve);
+      });
+
+      client.emit("leave-match");
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      const joinResult = await new Promise<{ ok: boolean; error?: string }>((resolve) => {
+        lateJoiner.emit("join-room", { sessionId: "session-late", roomCode }, resolve);
+      });
+      expect(joinResult.ok).toBe(false);
+      expect(joinResult.error).toBe("Room not found");
+    } finally {
+      client.close();
+      lateJoiner.close();
+    }
+  });
+
+  it("does not crash when a solo player disconnects while waiting for an opponent", async () => {
+    const url = `http://localhost:${port}`;
+    const client = ioClient(url);
+
+    try {
+      await waitFor(client, "connect");
+      await new Promise<{ roomCode: string }>((resolve) => {
+        client.emit("create-room", { sessionId: "session-solo-drop", bestOf: 3 }, resolve);
+      });
+
+      client.disconnect();
+      // longer than the 150ms reconnectGraceMs configured for this suite - the
+      // forfeit timer used to assume a second player existed and crashed the
+      // whole process (concludeRound reading .round off an undefined player).
+      await new Promise((resolve) => setTimeout(resolve, 250));
+
+      const other = ioClient(url);
+      try {
+        await waitFor(other, "connect");
+        const result = await new Promise<{ ok: boolean }>((resolve) => {
+          other.emit("reconnect-session", { sessionId: "session-solo-drop" }, resolve);
+        });
+        expect(result.ok).toBe(false);
+      } finally {
+        other.close();
+      }
+    } finally {
+      client.close();
+    }
+  });
+
   it("rejects reconnecting with an unknown session id", async () => {
     const url = `http://localhost:${port}`;
     const client = ioClient(url);

@@ -23,9 +23,34 @@ function getSessionId(): string {
   return id;
 }
 
-export function hasStoredPvpSession(): boolean {
-  if (typeof window === "undefined") return false;
-  return sessionStorage.getItem(SESSION_STORAGE_KEY) !== null;
+function getStoredSessionId(): string | null {
+  if (typeof window === "undefined") return null;
+  return sessionStorage.getItem(SESSION_STORAGE_KEY);
+}
+
+export function usePvpSessionCheck(): { checked: boolean; hasActiveMatch: boolean } {
+  const [checked, setChecked] = useState(false);
+  const [hasActiveMatch, setHasActiveMatch] = useState(false);
+
+  useEffect(() => {
+    const existingSessionId = getStoredSessionId();
+    if (!existingSessionId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setChecked(true);
+      return;
+    }
+
+    getSocket().emit(
+      "reconnect-session",
+      { sessionId: existingSessionId },
+      (res: { ok: boolean; passage?: string }) => {
+        setHasActiveMatch(Boolean(res.ok && res.passage));
+        setChecked(true);
+      }
+    );
+  }, []);
+
+  return { checked, hasActiveMatch };
 }
 
 export function usePvpRace() {
@@ -41,6 +66,7 @@ export function usePvpRace() {
   const [opponent, setOpponent] = useState<ClientRound>(EMPTY_ROUND);
   const [status, setStatus] = useState<RoundStatus>("in-progress");
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
+  const [opponentLeft, setOpponentLeft] = useState(false);
   const typedRef = useRef("");
   const sessionIdRef = useRef("");
 
@@ -84,12 +110,16 @@ export function usePvpRace() {
     function handleOpponentReconnected() {
       setOpponentDisconnected(false);
     }
+    function handleOpponentLeft() {
+      setOpponentLeft(true);
+    }
 
     socket.on("match-start", handleMatchStart);
     socket.on("state", handleState);
     socket.on("round-over", handleRoundOver);
     socket.on("opponent-disconnected", handleOpponentDisconnected);
     socket.on("opponent-reconnected", handleOpponentReconnected);
+    socket.on("opponent-left", handleOpponentLeft);
 
     // Always attempt to resume a previous session first - this is what makes
     // a page refresh (not just a brief network blip) recoverable, not only
@@ -123,6 +153,7 @@ export function usePvpRace() {
       socket.off("round-over", handleRoundOver);
       socket.off("opponent-disconnected", handleOpponentDisconnected);
       socket.off("opponent-reconnected", handleOpponentReconnected);
+      socket.off("opponent-left", handleOpponentLeft);
     };
   }, []);
 
@@ -175,6 +206,10 @@ export function usePvpRace() {
     typedRef.current = value;
   }, []);
 
+  const leaveMatch = useCallback(() => {
+    getSocket().emit("leave-match");
+  }, []);
+
   return {
     phase,
     roomCode,
@@ -188,8 +223,10 @@ export function usePvpRace() {
     opponent,
     status,
     opponentDisconnected,
+    opponentLeft,
     setTyped,
     createRoom,
     joinRoom,
+    leaveMatch,
   };
 }
