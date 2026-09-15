@@ -117,28 +117,41 @@ export function PvpRace({
 
   if (phase === "lobby" && mode === "join") {
     return (
-      <div className="flex flex-col items-center gap-6">
-        <div className="flex items-center gap-2 text-sm">
+      <div className="flex flex-col items-center gap-10">
+        <h2 className="text-7xl font-bold text-foreground">
+          Join <span className="text-teal-500">game</span>
+        </h2>
+
+        <TypingDemo
+          text={"1. Enter a lobby code.\n2. Click join game."}
+          showEraser={false}
+        />
+
+        <div className="flex flex-col items-center gap-5">
           <input
             value={codeInput}
             onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
             placeholder="Room code"
             maxLength={5}
-            className="w-28 rounded border border-zinc-700 bg-transparent px-2 py-1 text-center uppercase tracking-widest text-foreground"
+            className="w-80 rounded border border-zinc-700 bg-transparent px-6 py-4 text-center text-xl uppercase tracking-widest text-foreground"
           />
+
           <button
             onClick={() => joinRoom(codeInput)}
-            className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
+            className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
           >
             Join game
           </button>
+
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          <button
+            onClick={onExit}
+            className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
+          >
+            Back
+          </button>
         </div>
-
-        {error && <p className="text-sm text-red-500">{error}</p>}
-
-        <button onClick={onExit} className="text-xs text-zinc-500 underline">
-          Back
-        </button>
       </div>
     );
   }
