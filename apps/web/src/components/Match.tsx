@@ -23,10 +23,12 @@ function Scoreboard({
   bot: number;
 }) {
   return (
-    <div className="fixed left-6 top-1/2 flex -translate-y-1/2 flex-col items-start gap-2 text-xl">
-      <span className="text-foreground">Best of {bestOf}</span>
-      <span className="text-foreground">
-        You {you} — {bot} Bot
+    <div className="fixed left-6 top-1/2 flex -translate-y-1/2 flex-col items-start gap-3 rounded border border-zinc-700 px-5 py-4 text-xl">
+      <span className="font-bold text-teal-500">Best of {bestOf}</span>
+      <span className="font-bold">
+        <span className="text-green-500">You {you}</span>
+        <span className="text-foreground"> — </span>
+        <span className="text-red-500">{bot} Bot</span>
       </span>
     </div>
   );
@@ -77,7 +79,7 @@ export function Match({
       {matchWinner === null && roundOver && (
         <button
           onClick={handleNextRound}
-          className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
+          className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
         >
           Next round
         </button>
@@ -85,7 +87,7 @@ export function Match({
 
       {matchWinner !== null && (
         <div className="flex flex-col items-center gap-3">
-          <p className={matchWinner === "you" ? "text-teal-500" : "text-red-500"}>
+          <p className={`text-4xl font-bold ${matchWinner === "you" ? "text-teal-500" : "text-red-500"}`}>
             {matchWinner === "you" ? "You won the match!" : "Bot won the match."}
           </p>
           <button

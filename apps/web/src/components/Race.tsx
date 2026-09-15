@@ -100,7 +100,7 @@ export function Race({
       {phase === "idle" && (
         <button
           onClick={handleStart}
-          className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
+          className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
         >
           Start
         </button>
@@ -109,7 +109,7 @@ export function Race({
       {phase === "countdown" && <p className="text-4xl text-teal-500">{countdown}</p>}
 
       {phase === "racing" && status !== "in-progress" && (
-        <p className={status === "won" ? "text-teal-500" : "text-red-500"}>
+        <p className={`text-4xl font-bold ${status === "won" ? "text-teal-500" : "text-red-500"}`}>
           {outcomeMessage(youRound, botRound)}
         </p>
       )}

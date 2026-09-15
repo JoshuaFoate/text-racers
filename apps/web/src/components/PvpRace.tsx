@@ -187,11 +187,11 @@ export function PvpRace({
 
   if (opponentLeft) {
     return (
-      <div className="flex flex-col items-center gap-3">
-        <p className="text-sm text-red-500">Your opponent left the match.</p>
+      <div className="flex flex-col items-center gap-6">
+        <p className="text-4xl font-bold text-red-500">Your opponent left the match.</p>
         <button
           onClick={onExit}
-          className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
+          className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
         >
           Back to menu
         </button>
@@ -201,10 +201,12 @@ export function PvpRace({
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="fixed left-6 top-1/2 flex -translate-y-1/2 flex-col items-start gap-2 text-xl">
-        <span className="text-foreground">Best of {bestOf}</span>
-        <span className="text-foreground">
-          You {wins.you} — {wins.opponent} Opponent
+      <div className="fixed left-6 top-1/2 flex -translate-y-1/2 flex-col items-start gap-3 rounded border border-zinc-700 px-5 py-4 text-xl">
+        <span className="font-bold text-teal-500">Best of {bestOf}</span>
+        <span className="font-bold">
+          <span className="text-green-500">You {wins.you}</span>
+          <span className="text-foreground"> — </span>
+          <span className="text-red-500">{wins.opponent} Opponent</span>
         </span>
       </div>
 
@@ -234,19 +236,19 @@ export function PvpRace({
       )}
 
       {phase === "round-over" && (
-        <p className={status === "won" ? "text-teal-500" : "text-red-500"}>
+        <p className={`text-4xl font-bold ${status === "won" ? "text-teal-500" : "text-red-500"}`}>
           {status === "won" ? "You won that round!" : "You lost that round."}
         </p>
       )}
 
       {phase === "match-over" && (
-        <div className="flex flex-col items-center gap-3">
-          <p className={status === "won" ? "text-teal-500" : "text-red-500"}>
+        <div className="flex flex-col items-center gap-6">
+          <p className={`text-4xl font-bold ${status === "won" ? "text-teal-500" : "text-red-500"}`}>
             {status === "won" ? "You won the match!" : "You lost the match."}
           </p>
           <button
             onClick={onExit}
-            className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
+            className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
           >
             Back to menu
           </button>
