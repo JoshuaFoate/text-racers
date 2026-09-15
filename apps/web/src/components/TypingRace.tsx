@@ -62,14 +62,24 @@ export function TypingRace() {
     return (
       <>
         <Header />
-        <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
-          <div className="flex items-center gap-3 text-sm text-zinc-500">
-            <label htmlFor="difficulty">Difficulty</label>
+        <div className="flex flex-1 flex-col items-center justify-center gap-10 px-6">
+          <h2 className="text-7xl font-bold text-foreground">
+            Play against a <span className="text-teal-500">bot</span>
+          </h2>
+
+          <TypingDemo
+            text={
+              "1. Choose the difficulty of the bot.\n2. Choose the number of rounds.\n3. Click start match."
+            }
+            showEraser={false}
+          />
+
+          <div className="flex flex-col items-center gap-5">
             <select
               id="difficulty"
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value as BotDifficulty)}
-              className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-foreground"
+              className="w-80 rounded border border-zinc-700 bg-transparent px-6 py-4 text-center text-xl text-foreground"
             >
               {DIFFICULTIES.map((d) => (
                 <option key={d} value={d}>
@@ -77,34 +87,34 @@ export function TypingRace() {
                 </option>
               ))}
             </select>
-          </div>
 
-          <div className="flex items-center gap-3 text-sm text-zinc-500">
-            <label htmlFor="best-of">Best of</label>
             <select
               id="best-of"
               value={bestOf}
               onChange={(e) => setBestOf(Number(e.target.value) as BestOf)}
-              className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-foreground"
+              className="w-80 rounded border border-zinc-700 bg-transparent px-6 py-4 text-center text-xl text-foreground"
             >
               {BEST_OF_OPTIONS.map((n) => (
                 <option key={n} value={n}>
-                  {n}
+                  Best of {n}
                 </option>
               ))}
             </select>
+
+            <button
+              onClick={() => setPhase("match")}
+              className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
+            >
+              Start match
+            </button>
+
+            <button
+              onClick={() => setPhase("landing")}
+              className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
+            >
+              Back
+            </button>
           </div>
-
-          <button
-            onClick={() => setPhase("match")}
-            className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
-          >
-            Start match
-          </button>
-
-          <button onClick={() => setPhase("landing")} className="text-xs text-zinc-500 underline">
-            Back
-          </button>
         </div>
       </>
     );
