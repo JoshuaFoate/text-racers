@@ -78,6 +78,7 @@ export function PvpRace({
         </h2>
 
         <TypingDemo
+          key="pvp-host"
           text={"1. Select number of rounds.\n2. Click create game, and send your friend the code on the next screen."}
           showEraser={false}
         />
@@ -123,6 +124,7 @@ export function PvpRace({
         </h2>
 
         <TypingDemo
+          key="pvp-join"
           text={"1. Enter a lobby code.\n2. Click join game."}
           showEraser={false}
         />
@@ -158,13 +160,27 @@ export function PvpRace({
 
   if (phase === "waiting") {
     return (
-      <div className="flex flex-col items-center gap-3">
-        <p className="text-sm text-zinc-500">Share this code with your opponent</p>
-        <p className="text-4xl tracking-widest text-teal-500">{roomCode}</p>
-        <p className="text-sm text-zinc-500">Waiting for opponent…</p>
-        <button onClick={handleLeaveMatch} className="text-xs text-zinc-500 underline">
-          Leave match
-        </button>
+      <div className="flex flex-col items-center gap-10">
+        <h2 className="text-7xl font-bold text-foreground">
+          Waiting for <span className="text-teal-500">opponent</span>
+        </h2>
+
+        <TypingDemo
+          key="pvp-waiting"
+          text={"1. Share this code with your opponent.\n2. Wait for them to start the match."}
+          showEraser={false}
+        />
+
+        <div className="flex flex-col items-center gap-5">
+          <p className="text-6xl tracking-widest text-teal-500">{roomCode}</p>
+
+          <button
+            onClick={handleLeaveMatch}
+            className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
+          >
+            Leave match
+          </button>
+        </div>
       </div>
     );
   }

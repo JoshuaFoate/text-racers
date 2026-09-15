@@ -68,6 +68,7 @@ export function TypingRace() {
           </h2>
 
           <TypingDemo
+            key="bot-setup"
             text={
               "1. Choose the difficulty of the bot.\n2. Choose the number of rounds.\n3. Click start match."
             }
