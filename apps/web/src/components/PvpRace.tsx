@@ -6,7 +6,13 @@ import { PassageLine } from "./PassageLine";
 
 const BEST_OF_OPTIONS: BestOf[] = [3, 5];
 
-export function PvpRace({ onExit }: { onExit: () => void }) {
+export function PvpRace({
+  mode,
+  onExit,
+}: {
+  mode: "host" | "join";
+  onExit: () => void;
+}) {
   const {
     phase,
     roomCode,
@@ -63,7 +69,7 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
     onExit();
   }
 
-  if (phase === "lobby") {
+  if (phase === "lobby" && mode === "host") {
     return (
       <div className="flex flex-col items-center gap-6">
         <div className="flex items-center gap-2">
@@ -71,7 +77,7 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
             onClick={() => createRoom(selectedBestOf)}
             className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
           >
-            Create room
+            Host a new game
           </button>
           <select
             value={selectedBestOf}
@@ -86,6 +92,18 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
           </select>
         </div>
 
+        {error && <p className="text-sm text-red-500">{error}</p>}
+
+        <button onClick={onExit} className="text-xs text-zinc-500 underline">
+          Back
+        </button>
+      </div>
+    );
+  }
+
+  if (phase === "lobby" && mode === "join") {
+    return (
+      <div className="flex flex-col items-center gap-6">
         <div className="flex items-center gap-2 text-sm">
           <input
             value={codeInput}
@@ -98,7 +116,7 @@ export function PvpRace({ onExit }: { onExit: () => void }) {
             onClick={() => joinRoom(codeInput)}
             className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
           >
-            Join room
+            Join game
           </button>
         </div>
 

@@ -20,15 +20,19 @@ export function PassageLine({
   typed,
   erasedCount = 0,
   size = "lg",
+  wide = false,
 }: {
   passage: string;
   typed: string;
   erasedCount?: number;
   size?: "lg" | "sm";
+  wide?: boolean;
 }) {
   const states = characterStates(passage, typed);
   return (
-    <p className={`max-w-2xl font-mono ${SIZE_CLASS[size]} leading-relaxed tracking-wide`}>
+    <p
+      className={`${wide ? "max-w-5xl" : "max-w-2xl"} font-mono ${SIZE_CLASS[size]} leading-relaxed tracking-wide`}
+    >
       {passage.split("").map((char, i) => {
         const state = states[i];
         const displayChar = state === "error" && char === " " && typed[i] !== " " ? typed[i] : char;

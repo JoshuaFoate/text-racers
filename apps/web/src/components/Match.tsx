@@ -68,7 +68,7 @@ export function Match({
 
       <Race key={round} passage={passage} difficulty={difficulty} onRoundEnd={handleRoundEnd} />
 
-      {matchWinner === null && !roundOver && (
+      {matchWinner === null && (
         <button onClick={onExit} className="text-xs text-zinc-500 underline">
           Leave match
         </button>
