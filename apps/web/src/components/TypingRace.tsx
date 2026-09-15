@@ -3,6 +3,7 @@
 import { BOT_WPM, type BotDifficulty } from "game-core";
 import { useEffect, useState } from "react";
 import { usePvpSessionCheck } from "@/hooks/usePvpRace";
+import { Header } from "./Header";
 import { Match, type BestOf } from "./Match";
 import { PvpRace } from "./PvpRace";
 import { TypingDemo } from "./TypingDemo";
@@ -40,66 +41,72 @@ export function TypingRace() {
 
   if (phase === "match") {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
-        {mode === "bot" ? (
-          <Match key={matchKey} difficulty={difficulty} bestOf={bestOf} onExit={handleExit} />
-        ) : (
-          <PvpRace
-            key={matchKey}
-            mode={mode === "pvp-host" ? "host" : "join"}
-            onExit={handleExit}
-          />
-        )}
-      </div>
+      <>
+        <Header />
+        <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
+          {mode === "bot" ? (
+            <Match key={matchKey} difficulty={difficulty} bestOf={bestOf} onExit={handleExit} />
+          ) : (
+            <PvpRace
+              key={matchKey}
+              mode={mode === "pvp-host" ? "host" : "join"}
+              onExit={handleExit}
+            />
+          )}
+        </div>
+      </>
     );
   }
 
   if (phase === "bot-setup") {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
-        <div className="flex items-center gap-3 text-sm text-zinc-500">
-          <label htmlFor="difficulty">Difficulty</label>
-          <select
-            id="difficulty"
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value as BotDifficulty)}
-            className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-foreground"
+      <>
+        <Header />
+        <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6">
+          <div className="flex items-center gap-3 text-sm text-zinc-500">
+            <label htmlFor="difficulty">Difficulty</label>
+            <select
+              id="difficulty"
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value as BotDifficulty)}
+              className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-foreground"
+            >
+              {DIFFICULTIES.map((d) => (
+                <option key={d} value={d}>
+                  {d} ({BOT_WPM[d]} WPM)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-3 text-sm text-zinc-500">
+            <label htmlFor="best-of">Best of</label>
+            <select
+              id="best-of"
+              value={bestOf}
+              onChange={(e) => setBestOf(Number(e.target.value) as BestOf)}
+              className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-foreground"
+            >
+              {BEST_OF_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={() => setPhase("match")}
+            className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
           >
-            {DIFFICULTIES.map((d) => (
-              <option key={d} value={d}>
-                {d} ({BOT_WPM[d]} WPM)
-              </option>
-            ))}
-          </select>
+            Start match
+          </button>
+
+          <button onClick={() => setPhase("landing")} className="text-xs text-zinc-500 underline">
+            Back
+          </button>
         </div>
-
-        <div className="flex items-center gap-3 text-sm text-zinc-500">
-          <label htmlFor="best-of">Best of</label>
-          <select
-            id="best-of"
-            value={bestOf}
-            onChange={(e) => setBestOf(Number(e.target.value) as BestOf)}
-            className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-foreground"
-          >
-            {BEST_OF_OPTIONS.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          onClick={() => setPhase("match")}
-          className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
-        >
-          Start match
-        </button>
-
-        <button onClick={() => setPhase("landing")} className="text-xs text-zinc-500 underline">
-          Back
-        </button>
-      </div>
+      </>
     );
   }
 

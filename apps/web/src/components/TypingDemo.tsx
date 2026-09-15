@@ -13,8 +13,14 @@ function charsPerSecond(wpm: number): number {
   return (wpm * 5) / 60;
 }
 
-export function TypingDemo() {
-  const [passage, setPassage] = useState(() => generatePassage("medium"));
+export function TypingDemo({
+  text,
+  showEraser = true,
+}: {
+  text?: string;
+  showEraser?: boolean;
+}) {
+  const [passage, setPassage] = useState(() => text ?? generatePassage("medium"));
   const [typedChars, setTypedChars] = useState(0);
   const [erasedChars, setErasedChars] = useState(0);
   const elapsedMsRef = useRef(0);
@@ -30,7 +36,7 @@ export function TypingDemo() {
 
       elapsedMsRef.current += dtMs;
       setTypedChars((t) => Math.min(passage.length, t + charsPerSecond(TYPE_WPM) * (dtMs / 1000)));
-      if (hasGraceElapsed(elapsedMsRef.current)) {
+      if (showEraser && hasGraceElapsed(elapsedMsRef.current)) {
         setErasedChars((e) => Math.min(passage.length, e + charsPerSecond(ERASE_WPM) * (dtMs / 1000)));
       }
 
@@ -39,25 +45,26 @@ export function TypingDemo() {
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [passage]);
+  }, [passage, showEraser]);
 
   useEffect(() => {
+    if (!showEraser) return;
     if (erasedChars < passage.length) return;
     const timer = setTimeout(() => {
-      setPassage(generatePassage("medium"));
+      setPassage(text ?? generatePassage("medium"));
       setTypedChars(0);
       setErasedChars(0);
       elapsedMsRef.current = 0;
     }, RESTART_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [erasedChars, passage]);
+  }, [erasedChars, passage, showEraser, text]);
 
   return (
     <div className="pointer-events-none select-none">
       <PassageLine
         passage={passage}
         typed={passage.slice(0, Math.floor(typedChars))}
-        erasedCount={Math.floor(erasedChars)}
+        erasedCount={showEraser ? Math.floor(erasedChars) : 0}
         size="lg"
         wide
       />

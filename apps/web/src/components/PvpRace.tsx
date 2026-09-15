@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { type BestOf, usePvpRace } from "@/hooks/usePvpRace";
 import { PassageLine } from "./PassageLine";
+import { TypingDemo } from "./TypingDemo";
 
 const BEST_OF_OPTIONS: BestOf[] = [3, 5];
 
@@ -71,18 +72,21 @@ export function PvpRace({
 
   if (phase === "lobby" && mode === "host") {
     return (
-      <div className="flex flex-col items-center gap-6">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => createRoom(selectedBestOf)}
-            className="rounded border border-zinc-700 px-4 py-1.5 text-sm text-foreground"
-          >
-            Host a new game
-          </button>
+      <div className="flex flex-col items-center gap-10">
+        <h2 className="text-7xl font-bold text-foreground">
+          Host a <span className="text-teal-500">new game</span>
+        </h2>
+
+        <TypingDemo
+          text={"1. Select number of rounds.\n2. Click create game, and send your friend the code on the next screen."}
+          showEraser={false}
+        />
+
+        <div className="flex flex-col items-center gap-5">
           <select
             value={selectedBestOf}
             onChange={(e) => setSelectedBestOf(Number(e.target.value) as BestOf)}
-            className="rounded border border-zinc-700 bg-transparent px-2 py-1 text-sm text-foreground"
+            className="w-80 rounded border border-zinc-700 bg-transparent px-6 py-4 text-center text-xl text-foreground"
           >
             {BEST_OF_OPTIONS.map((n) => (
               <option key={n} value={n}>
@@ -90,13 +94,23 @@ export function PvpRace({
               </option>
             ))}
           </select>
+
+          <button
+            onClick={() => createRoom(selectedBestOf)}
+            className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
+          >
+            Create game
+          </button>
+
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          <button
+            onClick={onExit}
+            className="w-80 rounded border border-zinc-700 px-6 py-4 text-xl text-foreground transition-colors duration-300 hover:border-teal-500 hover:bg-teal-500/10"
+          >
+            Back
+          </button>
         </div>
-
-        {error && <p className="text-sm text-red-500">{error}</p>}
-
-        <button onClick={onExit} className="text-xs text-zinc-500 underline">
-          Back
-        </button>
       </div>
     );
   }

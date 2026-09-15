@@ -34,6 +34,7 @@ export function PassageLine({
       className={`${wide ? "max-w-5xl" : "max-w-2xl"} font-mono ${SIZE_CLASS[size]} leading-relaxed tracking-wide`}
     >
       {passage.split("").map((char, i) => {
+        if (char === "\n") return <br key={i} />;
         const state = states[i];
         const displayChar = state === "error" && char === " " && typed[i] !== " " ? typed[i] : char;
         return (
